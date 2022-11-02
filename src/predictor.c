@@ -6,6 +6,7 @@
 //  described in the README                               //
 //========================================================//
 #include <stdio.h>
+#include <string.h>
 #include "predictor.h"
 
 //
@@ -36,15 +37,13 @@ int verbose;
 //------------------------------------//
 //      Predictor Data Structures     //
 //------------------------------------//
-typedef uint32_t IDX;
-typedef uint8_t PNT;
 // BHT
 PNT bht_mask = 3; // 11
 /// --- Gshare
 // register will be reuse for tournament
 IDX global_history_register = 0;
-int global_history_mask;
-int global_history_num;
+IDX global_history_mask;
+IDX global_history_num;
 PNT *gshare_history; // Branch History Table (BHT)
 // Gshare shared var
 IDX gshare_current_index;
@@ -55,8 +54,8 @@ PNT *lb_history; // BHT for local
 IDX *lp_pattern; // Pattern History Table for local, based on pc index
 PNT *choice_pattern;
 IDX choice_register = 0;
-int local_branch_history_mask;
-int local_pattern_history_mask;
+IDX local_branch_history_mask;
+IDX local_pattern_history_mask;
 // Tournament Shared Var
 IDX global_bht_index;
 IDX current_local_index;
@@ -74,6 +73,8 @@ void init_predictor()
 {
     global_history_num = 1 << ghistoryBits;
     global_history_mask = global_history_num - 1;
+    if (verbose)
+        printf("global_history_num @ init (%d)", global_history_num);
     switch (bpType)
     {
     case GSHARE:
@@ -146,6 +147,8 @@ make_prediction(uint32_t pc)
 PNT gshare_make_prediction(IDX pc)
 {
     gshare_current_index = global_history_register ^ (pc & global_history_mask);
+    if (verbose)
+        printf("gshare_current_index @ make prediction (%d)", gshare_current_index);
     return two_bit_predictor(gshare_history[gshare_current_index]);
 }
 
