@@ -106,7 +106,7 @@ void tournament_init()
     lb_history = malloc(lb_nums * sizeof(PNT));
     memset(lb_history, WN, lb_nums);
     lp_pattern = malloc(ph_nums * sizeof(IDX));
-    memset(lp_pattern, WN, ph_nums);
+    memset(lp_pattern, 0, ph_nums);
     g_history = malloc(global_history_num * sizeof(PNT));
     memset(g_history, WN, global_history_num);
     // Choice, same as global
