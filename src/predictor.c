@@ -240,7 +240,7 @@ void update_tournament(IDX pc, PNT outcome)
     {
         PNT c = choice_pattern[global_bht_index];
         PNT o = current_local_prediction == outcome ? TAKEN : NOTTAKEN;
-        choice_pattern[global_bht_index] = update_two_bit_predictor(o, choice_pattern[global_bht_index]);
+        choice_pattern[c] = update_two_bit_predictor(o, choice_pattern[global_bht_index]);
     }
 
     // train local predictor
