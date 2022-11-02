@@ -33,10 +33,10 @@ extern const char *email;
 extern const char *bpName[];
 
 // Definitions for 2-bit counters
-#define SN 0 // predict NT, strong not taken
-#define WN 1 // predict NT, weak not taken
-#define WT 2 // predict T, weak taken
-#define ST 3 // predict T, strong taken
+#define SN 0 // Strong not taken, predict NT, strong not taken
+#define WN 1 // Weak not taken, predict NT, weak not taken
+#define WT 2 // Weak taken, predict T, weak taken
+#define ST 3 // Strong taken, predict T, strong taken
 
 //------------------------------------//
 //      Predictor Configuration       //
@@ -60,7 +60,6 @@ void init_predictor();
 // indicates a prediction of not taken
 //
 uint8_t make_prediction(uint32_t pc);
-uint8_t gshare_make_prediction(uint32_t pc);
 
 // Train the predictor the last executed branch at PC 'pc' and with
 // outcome 'outcome' (true indicates that the branch was taken, false
