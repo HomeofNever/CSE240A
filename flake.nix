@@ -19,6 +19,9 @@
           editorconfig-checker
           gcc
           cmake
+          bzip2
+          gdb
+          valgrind
         ];
       };
     });

@@ -74,7 +74,7 @@ void init_predictor()
     global_history_num = 1 << ghistoryBits;
     global_history_mask = global_history_num - 1;
     if (verbose)
-        printf("global_history_num @ init (%d)", global_history_num);
+        printf("[init]global_history_num (%d)\n", global_history_num);
     switch (bpType)
     {
     case GSHARE:
@@ -146,9 +146,14 @@ make_prediction(uint32_t pc)
 
 PNT gshare_make_prediction(IDX pc)
 {
+    if (verbose)
+    {
+        printf("[gshare make prediction] pc(%d)\n", pc);
+        printf("[gshare make prediction] global_history_register(%d)\n", global_history_register);
+    }
     gshare_current_index = global_history_register ^ (pc & global_history_mask);
     if (verbose)
-        printf("gshare_current_index @ make prediction (%d)", gshare_current_index);
+        printf("[gshare make prediction] gshare_current_index (%d)\n", gshare_current_index);
     return two_bit_predictor(gshare_history[gshare_current_index]);
 }
 
@@ -204,6 +209,7 @@ void train_predictor(uint32_t pc, uint8_t outcome)
         break;
     case CUSTOM:
         update_custom(pc, outcome);
+        break;
     default:
         break;
     }
@@ -217,7 +223,13 @@ void update_gshare(IDX pc, PNT outcome)
 {
     // update Gshare
     // make use of index in calculation
-    gshare_history[gshare_current_index] = update_two_bit_predictor(gshare_history[gshare_current_index], outcome);
+    if (verbose)
+    {
+        printf("[update_gshare] gshare_current_index (%d)\n", gshare_current_index);
+        printf("[update_gshare] pc(%d)\n", pc);
+        printf("[update_gshare] outcome(%d)\n", outcome);
+    }
+    gshare_history[gshare_current_index] = update_two_bit_predictor(outcome, gshare_history[gshare_current_index]);
 }
 
 // tournament
@@ -274,5 +286,6 @@ PNT update_two_bit_predictor(PNT outcome, PNT bits)
 void update_global_history_register(PNT outcome)
 {
     global_history_register <<= 1;
+    global_history_register &= global_history_mask;
     global_history_register |= outcome;
 }
