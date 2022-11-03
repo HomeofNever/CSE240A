@@ -78,11 +78,14 @@ void init_predictor()
     switch (bpType)
     {
     case GSHARE:
-        return gshare_init();
+        gshare_init();
+        break;
     case TOURNAMENT:
-        return tournament_init();
+        tournament_init();
+        break;
     case CUSTOM:
-        return custom_init();
+        custom_init();
+        break;
     default:
         break;
     }
@@ -275,9 +278,11 @@ PNT two_bit_predictor(PNT history)
 
 PNT update_two_bit_predictor(PNT outcome, PNT bits)
 {
-    bits = bits << 1;
-    bits = bits | outcome;
-    bits = bits & bht_mask;
+    if (bits != SN && outcome == NOTTAKEN)
+        bits--;
+    else if (bits != ST && outcome == TAKEN)
+        bits++;
+
     return bits;
 }
 
