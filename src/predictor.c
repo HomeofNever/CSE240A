@@ -169,10 +169,11 @@ PNT tournament_make_prediction(IDX pc)
     current_global_prediction = tournament_global_prediction(pc);
     current_local_prediction = tournament_local_prediction(pc);
 
-    if (choice_outcome > 1)
-        return current_global_prediction;
-    else
+    // Taken: local; not taken: global
+    if (choice_outcome > WN)
         return current_local_prediction;
+    else
+        return current_global_prediction;
 }
 
 PNT tournament_global_prediction(IDX pc)
@@ -242,7 +243,7 @@ void update_tournament(IDX pc, PNT outcome)
     if (current_global_prediction != current_local_prediction)
     {
         PNT o = current_local_prediction == outcome ? TAKEN : NOTTAKEN;
-        choice_pattern[global_history_register] = update_two_bit_predictor(o, choice_pattern[global_history_register]);
+        choice_pattern[global_bht_index] = update_two_bit_predictor(o, choice_pattern[global_bht_index]);
     }
 
     // train local predictor
@@ -278,9 +279,9 @@ PNT two_bit_predictor(PNT history)
 
 PNT update_two_bit_predictor(PNT outcome, PNT bits)
 {
-    if (bits != SN && outcome == NOTTAKEN)
+    if (bits > SN && outcome == NOTTAKEN)
         bits--;
-    else if (bits != ST && outcome == TAKEN)
+    else if (bits < ST && outcome == TAKEN)
         bits++;
 
     return bits;
