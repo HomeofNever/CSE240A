@@ -62,6 +62,7 @@ IDX current_local_index;
 IDX current_local_pht_index;
 PNT current_local_prediction;
 PNT current_global_prediction;
+// Custom Predictor
 
 //------------------------------------//
 //        Predictor Functions         //
@@ -71,6 +72,13 @@ PNT current_global_prediction;
 //
 void init_predictor()
 {
+    if (bpType == CUSTOM)
+    {
+        // Fix Value for comparison
+        ghistoryBits = 12;
+        lhistoryBits = 10;
+        pcIndexBits = 12;
+    }
     global_history_num = 1 << ghistoryBits;
     global_history_mask = global_history_num - 1;
     if (verbose)
@@ -119,6 +127,8 @@ void tournament_init()
 
 void custom_init()
 {
+    gshare_init();
+    tournament_init();
 }
 
 // Make a prediction for conditional branch instruction at PC 'pc'
@@ -193,8 +203,16 @@ PNT tournament_local_prediction(IDX pc)
 
 PNT custom_make_prediction(IDX pc)
 {
-    // @TODO
-    return 0;
+    current_global_prediction = gshare_make_prediction(pc);
+    global_bht_index = global_history_register ^ global_history_mask;
+    PNT choice_outcome = choice_pattern[gshare_current_index];
+    current_local_prediction = tournament_local_prediction(pc);
+
+    // Taken: local; not taken: global
+    if (choice_outcome > WN)
+        return current_local_prediction;
+    else
+        return current_global_prediction;
 }
 
 // Train the predictor the last executed branch at PC 'pc' and with
@@ -239,13 +257,22 @@ void update_gshare(IDX pc, PNT outcome)
 // tournament
 void update_tournament(IDX pc, PNT outcome)
 {
-    // update choice pattern
+    tournament_update_choice(outcome);
+    tournament_update_other(outcome);
+}
+
+// update choice pattern
+void tournament_update_choice(PNT outcome)
+{
     if (current_global_prediction != current_local_prediction)
     {
         PNT o = current_local_prediction == outcome ? TAKEN : NOTTAKEN;
         choice_pattern[global_bht_index] = update_two_bit_predictor(o, choice_pattern[global_bht_index]);
     }
+}
 
+void tournament_update_other(PNT outcome)
+{
     // train local predictor
     lb_history[current_local_index] = update_two_bit_predictor(outcome, lb_history[current_local_index]);
 
@@ -260,6 +287,14 @@ void update_tournament(IDX pc, PNT outcome)
 
 void update_custom(IDX pc, PNT outcome)
 {
+    update_gshare(pc, outcome);
+    // Tournament with gshare idx
+    if (current_global_prediction != current_local_prediction)
+    {
+        PNT o = current_local_prediction == outcome ? TAKEN : NOTTAKEN;
+        choice_pattern[gshare_current_index] = update_two_bit_predictor(o, choice_pattern[gshare_current_index]);
+    }
+    tournament_update_other(outcome);
 }
 
 // --- utils

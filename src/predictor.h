@@ -81,6 +81,10 @@ void update_gshare(IDX pc, PNT outcome);
 void update_tournament(IDX pc, PNT outcome);
 void update_custom(IDX pc, PNT outcome);
 
+//
+void tournament_update_choice(PNT outcome);
+void tournament_update_other(PNT outcome);
+
 // Utils
 PNT two_bit_predictor(PNT history);
 PNT update_two_bit_predictor(PNT outcome, PNT bits);
